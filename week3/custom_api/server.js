@@ -101,5 +101,16 @@ app.route('/rates/:cTokenAmount').get(async (req,res)=>{
     return res.send(rate);
 
 });
+app.route('/gas_est').get((req,res)=>{
+    // const wallet_ebal_cost = web3.eth.getBalance.estimateGas(myWalletAddress);
+    const cToken = new web3.eth.Contract(cEthAbi, cEthAddress);
+    const wallet_cbal_cost = cEthContract.methods.balanceOf(myWalletAddress).estimateGas;
+    const rate_gas = cToken.methods.exchangeRateCurrent.estimateGas;
+    const redeem_gas = cEthContract.methods.redeem.estimateGas;
+    const gas_price = 200.0 / Math.pow(10, 9);
+    const net_gas = (wallet_cbal_cost+rate_gas+redeem_gas)*gas_price;
+    console.log(net_gas);
+    return res.send(net_gas.toString());
+});
 
 app.listen(port, () => console.log(`API server running on port ${port}`));
